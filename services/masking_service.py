@@ -11,8 +11,11 @@ def mask_value(candidate: Candidate) -> str:
             masked_local = local[0] + "*" * (len(local) - 2) + local[-1]
         return f"{masked_local}@{domain}"
     if candidate.kind == "phone":
-        digits = sum(c.isdigit() for c in value)
-        return "*" * max(0, digits - 2) + value[-2:]
+        digits = candidate.phone_national_digits or "".join(c for c in value if c.isdigit())
+        return "*" * max(1, len(digits) - 2) + digits[-2:]
+    if candidate.kind == "aadhaar_like":
+        digits = "".join(c for c in value if c.isdigit())
+        return "*" * max(1, len(digits) - 2) + digits[-2:]
     if candidate.kind == "pan_like":
         return value[:2] + "*" * max(0, len(value) - 3) + value[-1:]
     if candidate.kind == "age":

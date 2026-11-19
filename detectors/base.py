@@ -13,3 +13,6 @@ class Candidate:
     detector: str
     confidence: Confidence
     notes: str
+    country_code: int | None = None
+    country_region: str | None = None
+    phone_national_digits: str | None = None

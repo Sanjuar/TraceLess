@@ -14,7 +14,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-The API is at `http://127.0.0.1:8000`; interactive docs are at `/docs` and `/redoc`. Health check: `GET /health`. To change the text limit, export `TRACELESS_MAX_TEXT_CHARACTERS` in the shell before starting the app. `.env.example` documents the optional setting; the application reads process environment variables directly.
+The API is at `http://127.0.0.1:8000`; interactive docs are at `/docs` and `/redoc`. Health check: `GET /health`. To change the text limit, export `TRACELESS_MAX_TEXT_CHARACTERS` in the shell before starting the app. Set `TRACELESS_DEFAULT_PHONE_REGION` to a two-letter ISO region (such as `IN` or `US`) to enable national-format phone detection. Without a configured region, only numbers with an explicit international `+` calling code are considered. `.env.example` documents optional settings; the application reads process environment variables directly.
 
 ## Text scan
 
@@ -27,15 +27,16 @@ The API is at `http://127.0.0.1:8000`; interactive docs are at `/docs` and `/red
 }
 ```
 
-Responses contain a random scan ID, masked findings, character offsets into the original submitted string, sanitized evidence snippets, detector identifiers, caveats, and a summary. Values are always masked; `mask_values: false` is not a reveal mechanism. `persist_scan` is accepted for forward compatibility but has no effect: Phase 1 never stores scan text or results. The service does not log request bodies.
+Responses contain a random scan ID, masked findings, character offsets into the original submitted string, sanitized evidence snippets, detector identifiers, caveats, and a summary. Phone findings also include `country_code` and `country_region` when libphonenumber metadata determines them. Values are always masked; `mask_values: false` is not a reveal mechanism. `persist_scan` is accepted for forward compatibility but has no effect: Phase 1 never stores scan text or results. The service does not log request bodies.
 
 Run the test suite with `pytest -q`.
 
 ## Detector limits
 
 - Email detects email-shaped strings; it does not verify ownership or delivery.
-- Phone detection requires an international prefix or nearby phone/contact context. It does not validate numbering plans or ownership.
+- Phone detection uses Google's libphonenumber metadata for international numbers and national numbers only when a default region is configured. It avoids uncontextualized digit-only national sequences. Validation does not prove assignment, reachability, or ownership.
 - PAN detection checks format only, not government records.
+- `aadhaar_like` detects a 12-digit shape only; it never contacts UIDAI or claims government validation.
 - Age detection requires a phrase such as “age 24” or “24 years old”; it is an unverified claim.
 - Name candidates require contextual phrases/sign-offs and can be false positives.
 - Certificate IDs require certificate context because there is no universal format.

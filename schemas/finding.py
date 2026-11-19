@@ -19,6 +19,8 @@ class Finding(BaseModel):
     detector: str
     source: Literal["pasted_text"] = "pasted_text"
     notes: str
+    country_code: int | None = None
+    country_region: str | None = None
 
 
 class ScanSummary(BaseModel):

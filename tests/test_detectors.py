@@ -2,8 +2,8 @@ from detectors.registry import detect_all
 from services.masking_service import mask_value
 
 
-def kinds(text):
-    return [candidate.kind for candidate in detect_all(text)]
+def kinds(text, phone_region=None):
+    return [candidate.kind for candidate in detect_all(text, phone_region=phone_region)]
 
 
 def test_email_pan_age_and_phone_in_unstructured_text():
@@ -14,10 +14,11 @@ def test_email_pan_age_and_phone_in_unstructured_text():
     assert found[0].confidence == "high"
 
 
-def test_phone_requires_prefix_or_context_and_bare_number_is_not_bank_account():
+def test_bare_national_phone_requires_configured_region_and_context():
     assert "phone" not in kinds("Order number 1234567890")
+    assert "phone" not in kinds("Call 98765 43210")
+    assert "phone" in kinds("Call 98765 43210", phone_region="IN")
     assert "bank_account_like" not in kinds("Order number 1234567890")
-    assert "phone" in kinds("Call 98765 43210")
 
 
 def test_contextual_age_bounds_and_name_certificate_bank_candidates():

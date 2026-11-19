@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from config import DEFAULT_PHONE_REGION
 from detectors.registry import detect_all
 from schemas.finding import Finding, ScanResponse, ScanSummary
 from schemas.scan import ScanOptions
@@ -7,7 +8,12 @@ from services.masking_service import mask_value, sanitized_evidence
 
 
 def scan_text(text: str, options: ScanOptions) -> ScanResponse:
-    candidates = detect_all(text, detect_names=options.detect_names, detect_age=options.detect_age)
+    candidates = detect_all(
+        text,
+        detect_names=options.detect_names,
+        detect_age=options.detect_age,
+        phone_region=DEFAULT_PHONE_REGION,
+    )
     findings = [
         Finding(
             id=str(index),
@@ -19,6 +25,8 @@ def scan_text(text: str, options: ScanOptions) -> ScanResponse:
             evidence_snippet=sanitized_evidence(text, candidate, candidates),
             detector=candidate.detector,
             notes=candidate.notes,
+            country_code=candidate.country_code,
+            country_region=candidate.country_region,
         )
         for index, candidate in enumerate(candidates, start=1)
     ]
