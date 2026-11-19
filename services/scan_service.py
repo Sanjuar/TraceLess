@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-from config import DEFAULT_PHONE_REGION
 from detectors.registry import detect_all
 from schemas.finding import Finding, ScanResponse, ScanSummary
 from schemas.scan import ScanOptions
@@ -12,7 +11,6 @@ def scan_text(text: str, options: ScanOptions) -> ScanResponse:
         text,
         detect_names=options.detect_names,
         detect_age=options.detect_age,
-        phone_region=DEFAULT_PHONE_REGION,
     )
     findings = [
         Finding(

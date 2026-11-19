@@ -14,7 +14,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-The API is at `http://127.0.0.1:8000`; interactive docs are at `/docs` and `/redoc`. Health check: `GET /health`. To change the text limit, export `TRACELESS_MAX_TEXT_CHARACTERS` in the shell before starting the app. Set `TRACELESS_DEFAULT_PHONE_REGION` to a two-letter ISO region (such as `IN` or `US`) to enable national-format phone detection. Without a configured region, only numbers with an explicit international `+` calling code are considered. `.env.example` documents optional settings; the application reads process environment variables directly.
+The API is at `http://127.0.0.1:8000`; interactive docs are at `/docs` and `/redoc`. Health check: `GET /health`. To change the text limit, export `TRACELESS_MAX_TEXT_CHARACTERS` in the shell before starting the app. International phone numbers with an explicit `+` calling code are parsed without a default region. The scan API does not infer a country for national-format numbers. `.env.example` documents optional settings; the application reads process environment variables directly.
 
 ## Text scan
 
@@ -34,7 +34,7 @@ Run the test suite with `pytest -q`.
 ## Detector limits
 
 - Email detects email-shaped strings; it does not verify ownership or delivery.
-- Phone detection uses Google's libphonenumber metadata for international numbers and national numbers only when a default region is configured. It avoids uncontextualized digit-only national sequences. Validation does not prove assignment, reachability, or ownership.
+- Phone detection uses Google's libphonenumber metadata and `is_valid_number()` for explicit international numbers. It does not guess regions or treat unprefixed national numbers as international. Validation does not prove assignment, reachability, or ownership.
 - PAN detection checks format only, not government records.
 - `aadhaar_like` detects a 12-digit shape only; it never contacts UIDAI or claims government validation.
 - Age detection requires a phrase such as “age 24” or “24 years old”; it is an unverified claim.

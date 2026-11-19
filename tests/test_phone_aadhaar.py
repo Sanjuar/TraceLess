@@ -57,6 +57,8 @@ def test_phone_separators_offsets_and_invalid_candidates():
     assert [text[item.start:item.end] for item in found] == ["+1 (416) 555-0123", "+61-412-345-678"]
     assert detect_phone("Phone: +999 12345 67890") == []
     assert detect_phone("Phone: +1 123 456 7890") == []
+    assert detect_phone("National ID: 123-45-6789") == []
+    assert detect_phone("+44 123 1234567") == []
 
 
 def test_same_phone_is_not_duplicated_and_api_evidence_never_contains_full_value():
