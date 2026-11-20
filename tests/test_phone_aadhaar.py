@@ -96,6 +96,25 @@ def test_aadhaar_boundaries_reject_short_and_longer_numbers():
     assert detect_aadhaar("991234 5678 90123") == []
 
 
+def test_phone_like_plus_prefix_is_not_reported_as_aadhaar_or_phone():
+    text = "Invalid numbers: +999123456789 and +1 123-456-7890."
+    response = scan_text(text, ScanOptions())
+    assert response.summary.total_findings == 0
+    assert response.findings == []
+
+
+def test_standalone_aadhaar_like_number_remains_detected():
+    response = scan_text("123456789012", ScanOptions())
+    assert response.summary.total_findings == 1
+    finding = response.findings[0]
+    assert finding.type == "aadhaar_like"
+    assert finding.value_masked == "**********12"
+    assert finding.start_offset == 0
+    assert finding.end_offset == 12
+    assert finding.detector == "aadhaar_format_regex_v1"
+    assert finding.source == "pasted_text"
+
+
 def test_contextual_identifiers_win_over_overlapping_aadhaar_shape():
     certificate = detect_all("Certificate ID: 123456789012")
     assert len(certificate) == 1
